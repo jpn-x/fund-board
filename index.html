@@ -445,6 +445,21 @@ async function loadAll() {
   btn.innerHTML = '🔄 最新データを取得';
 }
 
+// Google SheetsのDate→JST yyyy/MM/dd 変換
+function toJstDateStr(val) {
+  if (!val) return '';
+  const s = String(val).trim();
+  // すでに yyyy/MM/dd 形式ならそのまま
+  if (/^\d{4}[\/\-]\d{2}[\/\-]\d{2}$/.test(s)) return s.replace(/-/g, '/');
+  // ISO文字列（UTC）をJSTに変換
+  const dt = new Date(s);
+  if (isNaN(dt)) return s;
+  const jst = new Date(dt.getTime() + 9 * 60 * 60 * 1000);
+  return jst.getUTCFullYear() + '/' +
+    String(jst.getUTCMonth() + 1).padStart(2, '0') + '/' +
+    String(jst.getUTCDate()).padStart(2, '0');
+}
+
 async function loadCurrent() {
   try {
     const res  = await fetch(WEB_APP_URL + '?action=current&t=' + Date.now());
@@ -452,7 +467,6 @@ async function loadCurrent() {
     if (!json.rows || json.rows.length < 2) throw new Error('データなし');
 
     const row   = json.rows[1];
-    const date  = row[0] || '';
     const price = parseFloat(row[1]) || 0;
     const diff  = parseFloat(row[2]) || 0;
     const pct   = parseFloat(row[3]) || 0;
@@ -467,9 +481,8 @@ async function loadCurrent() {
       `${sign} ${Math.abs(Math.round(diff)).toLocaleString()}円 (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`;
     chgEl.className = 'price-change ' + cls;
 
-    const dateStr = typeof date === 'string' ? date : new Date(date).toLocaleDateString('ja-JP');
     document.getElementById('price-date').textContent =
-      dateStr.slice(0, 10).replace(/-/g, '/') + ' 時点の基準価格';
+      toJstDateStr(row[0]) + ' 時点の基準価格';
   } catch(e) {
     document.getElementById('price-val').textContent = 'エラー';
     document.getElementById('price-date').innerHTML =
@@ -487,7 +500,7 @@ async function loadHistory() {
     histData.values = [];
 
     json.rows.slice(1).forEach(row => { // ヘッダー除去
-      const d = row[0] ? String(row[0]).trim() : '';
+      const d = toJstDateStr(row[0]);
       const v = parseFloat(row[1]) || 0;
       if (d && v > 0) {
         histData.labels.push(d);
