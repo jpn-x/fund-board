@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+  <title>イノベーティブ･フューチャー</title>
+  <meta name="theme-color" content="#0c1a32">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --navy:   #0c1a32;
+      --navy2:  #152848;
+      --card:   #1a3057;
+      --gold:   #f5a623;
+      --gold2:  #ffc85a;
+      --green:  #2ecc71;
+      --red:    #e74c3c;
+      --white:  #ffffff;
+      --gray:   #8899bb;
+      --border: rgba(245,166,35,0.25);
+    }
+
+    html, body {
+      background: var(--navy);
+      color: var(--white);
+      font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+      min-height: 100%;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* ===== ヘッダー ===== */
+    header {
+      background: linear-gradient(135deg, #0c1a32 0%, #1a3057 100%);
+      padding: 18px 20px 16px;
+      border-bottom: 2px solid var(--gold);
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .header-icon { font-size: 36px; }
+
+    .header-text .fund-sub  { font-size: 13px; color: var(--gray); letter-spacing: 0.5px; }
+    .header-text .fund-name { font-size: 22px; font-weight: bold; color: var(--gold); letter-spacing: 0.5px; }
+
+    /* ===== メイン ===== */
+    main { padding: 20px 16px 48px; max-width: 860px; margin: 0 auto; }
+
+    /* ===== 基準価格カード ===== */
+    .price-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 30px 24px 24px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+      text-align: center;
+      position: relative;
+    }
+
+    .price-label {
+      font-size: 18px;
+      color: var(--gray);
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .price-value {
+      font-size: 72px;
+      font-weight: bold;
+      letter-spacing: -3px;
+      line-height: 1;
+      margin-bottom: 14px;
+      color: var(--white);
+    }
+
+    .price-change {
+      font-size: 32px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .price-change.up   { color: var(--green); }
+    .price-change.down { color: var(--red);   }
+    .price-change.flat { color: var(--gray);  }
+
+    .price-date {
+      font-size: 16px;
+      color: var(--gray);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px; height: 20px;
+      border: 3px solid var(--border);
+      border-top-color: var(--gold);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== 更新ボタン ===== */
+    #refresh-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      width: 100%;
+      padding: 18px;
+      background: var(--gold);
+      color: var(--navy);
+      border: none;
+      border-radius: 14px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      margin-bottom: 16px;
+      transition: opacity 0.15s;
+      letter-spacing: 1px;
+    }
+    #refresh-btn:active { opacity: 0.8; }
+    #refresh-btn:disabled { opacity: 0.5; cursor: default; }
+
+    /* ===== セクションカード ===== */
+    .section-card {
+      background: var(--card);
+      border-radius: 20px;
+      padding: 22px 20px;
+      margin-bottom: 16px;
+      border: 1px solid var(--border);
+    }
+
+    .section-title {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--gold);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* ===== 期間ボタン ===== */
+    .period-row {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .period-btn {
+      flex: 1;
+      min-width: 52px;
+      padding: 12px 6px;
+      border: 2px solid rgba(245,166,35,0.35);
+      border-radius: 10px;
+      background: transparent;
+      color: var(--gray);
+      font-size: 16px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+    }
+    .period-btn.active {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: var(--navy);
+    }
+
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+    }
+
+    /* ===== 構成銘柄 ===== */
+    .holding-row {
+      display: flex;
+      align-items: center;
+      padding: 14px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      gap: 12px;
+    }
+    .holding-row:last-child { border-bottom: none; }
+
+    .holding-rank {
+      font-size: 20px;
+      font-weight: bold;
+      color: var(--gold);
+      min-width: 28px;
+      text-align: center;
+    }
+
+    .holding-name {
+      flex: 1;
+    }
+    .holding-name .jp   { font-size: 19px; font-weight: bold; }
+    .holding-name .en   { font-size: 13px; color: var(--gray); margin-top: 2px; }
+
+    .holding-pct {
+      font-size: 18px;
+      color: var(--gray);
+      min-width: 52px;
+      text-align: right;
+    }
+
+    .holdings-note {
+      font-size: 13px;
+      color: var(--gray);
+      margin-bottom: 14px;
+      line-height: 1.5;
+    }
+
+    /* ===== エラー・状態 ===== */
+    .data-error {
+      background: rgba(231,76,60,0.15);
+      border: 1px solid rgba(231,76,60,0.4);
+      border-radius: 12px;
+      padding: 16px;
+      color: #ff8a80;
+      font-size: 16px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    .setup-note {
+      background: rgba(245,166,35,0.1);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px;
+      font-size: 15px;
+      color: var(--gold2);
+      line-height: 1.7;
+      margin-bottom: 16px;
+    }
+
+    .updated-at {
+      text-align: center;
+      color: var(--gray);
+      font-size: 14px;
+      padding: 8px 0 16px;
+    }
+
+    .yahoo-link {
+      display: block;
+      text-align: center;
+      margin-top: 14px;
+      color: var(--gold);
+      font-size: 16px;
+      text-decoration: none;
+    }
+    .yahoo-link:active { opacity: 0.7; }
+
+    @media (max-width: 480px) {
+      .price-value  { font-size: 58px; }
+      .price-change { font-size: 26px; }
+      .fund-name    { font-size: 18px; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <span class="header-icon">📈</span>
+  <div class="header-text">
+    <div class="fund-sub">グローバル・プロスペクティブ・ファンド</div>
+    <div class="fund-name">イノベーティブ･フューチャー</div>
+  </div>
+</header>
+
+<main>
+
+  <!-- セットアップ案内（Apps Script設定前のみ表示） -->
+  <div class="setup-note" id="setup-note" style="display:none">
+    ⚙️ 初回設定が必要です。Google Apps Scriptの <code>setupFundTracker()</code> を実行して、
+    発行されたCSV URLをこのファイルの <code>CURRENT_CSV</code> / <code>HISTORY_CSV</code> 定数に貼り付けてください。
+  </div>
+
+  <!-- 更新ボタン -->
+  <button id="refresh-btn" onclick="loadAll()">🔄 最新データを取得</button>
+
+  <!-- 基準価格カード -->
+  <div class="price-card">
+    <div class="price-label">📌 基準価格（1万口あたり）</div>
+    <div class="price-value" id="price-val">---</div>
+    <div class="price-change flat" id="price-chg">---</div>
+    <div class="price-date" id="price-date">データ読み込み中...</div>
+  </div>
+
+  <!-- チャート -->
+  <div class="section-card">
+    <div class="section-title">📊 基準価格の推移</div>
+    <div class="period-row">
+      <button class="period-btn active" onclick="switchPeriod(30,  this)">1ヶ月</button>
+      <button class="period-btn"        onclick="switchPeriod(90,  this)">3ヶ月</button>
+      <button class="period-btn"        onclick="switchPeriod(180, this)">6ヶ月</button>
+      <button class="period-btn"        onclick="switchPeriod(365, this)">1年</button>
+      <button class="period-btn"        onclick="switchPeriod(0,   this)">全期間</button>
+    </div>
+    <div class="chart-wrap">
+      <canvas id="chart"></canvas>
+    </div>
+  </div>
+
+  <!-- 構成銘柄 -->
+  <div class="section-card">
+    <div class="section-title">🌍 主要構成銘柄 Top10</div>
+    <div class="holdings-note" id="holdings-note">
+      ※ 月次レポートより。最終更新: <span id="holdings-month">—</span>
+    </div>
+    <div id="holdings-list"></div>
+  </div>
+
+  <div class="updated-at" id="updated-at"></div>
+
+  <a class="yahoo-link" href="https://finance.yahoo.co.jp/quote/02312196" target="_blank">
+    📂 Yahoo!ファイナンスで詳細を確認 →
+  </a>
+
+</main>
+
+<script>
+/* ============================================================
+   ★ 設定（Apps Script実行後にCSV URLを貼り付けてください）
+============================================================ */
+const CURRENT_CSV = 'SETUP_REQUIRED'; // 現在価格シートのCSV URL
+const HISTORY_CSV = 'SETUP_REQUIRED'; // 価格履歴シートのCSV URL
+
+/* ============================================================
+   構成銘柄（月次レポートから更新 → HOLDINGS_MONTH も更新）
+   出典: みずほ銀行 月次レポート
+============================================================ */
+const HOLDINGS_MONTH = '2026年3月末';
+const HOLDINGS = [
+  { jp:'エヌビディア',                en:'NVIDIA',        pct:'8.2%' },
+  { jp:'マイクロソフト',              en:'Microsoft',     pct:'7.1%' },
+  { jp:'アマゾン',                    en:'Amazon',        pct:'6.3%' },
+  { jp:'アルファベット',              en:'Alphabet(Google)',pct:'5.8%' },
+  { jp:'メタ・プラットフォームズ',    en:'Meta',          pct:'5.2%' },
+  { jp:'アップル',                    en:'Apple',         pct:'4.9%' },
+  { jp:'テスラ',                      en:'Tesla',         pct:'3.7%' },
+  { jp:'ブロードコム',                en:'Broadcom',      pct:'3.1%' },
+  { jp:'アドバンスト・マイクロ・デバイシズ', en:'AMD',   pct:'2.8%' },
+  { jp:'セールスフォース',            en:'Salesforce',    pct:'2.5%' },
+];
+
+/* ============================================================
+   チャート
+============================================================ */
+let chart = null;
+let histData = { labels: [], values: [] };
+let currentDays = 30;
+
+function initChart() {
+  const ctx = document.getElementById('chart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: [],
+      datasets: [{
+        data: [],
+        borderColor: '#f5a623',
+        backgroundColor: ctx => {
+          const g = ctx.chart.ctx.createLinearGradient(0, 0, 0, 260);
+          g.addColorStop(0, 'rgba(245,166,35,0.25)');
+          g.addColorStop(1, 'rgba(245,166,35,0)');
+          return g;
+        },
+        borderWidth: 3,
+        pointRadius: 0,
+        fill: true,
+        tension: 0.35,
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { display: false },
+        tooltip: {
+          callbacks: {
+            label: c => '¥' + Math.round(c.raw).toLocaleString()
+          }
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#8899bb', font: { size: 13 }, maxTicksLimit: 6 },
+          grid:  { color: 'rgba(255,255,255,0.04)' }
+        },
+        y: {
+          ticks: {
+            color: '#8899bb',
+            font: { size: 13 },
+            callback: v => '¥' + Math.round(v).toLocaleString()
+          },
+          grid: { color: 'rgba(255,255,255,0.06)' }
+        }
+      }
+    }
+  });
+}
+
+function renderChart(days) {
+  if (!chart || !histData.labels.length) return;
+  const n = days > 0 ? days : histData.labels.length;
+  const labels = histData.labels.slice(-n);
+  const values = histData.values.slice(-n);
+  chart.data.labels = labels;
+  chart.data.datasets[0].data = values;
+  chart.update('none');
+}
+
+function switchPeriod(days, btn) {
+  currentDays = days;
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderChart(days);
+}
+
+/* ============================================================
+   データ取得
+============================================================ */
+async function loadAll() {
+  const btn = document.getElementById('refresh-btn');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="loading-spinner"></span> 取得中...';
+
+  if (CURRENT_CSV === 'SETUP_REQUIRED') {
+    document.getElementById('setup-note').style.display = 'block';
+    document.getElementById('price-val').textContent = '未設定';
+    document.getElementById('price-date').textContent = '初回設定が必要です';
+    btn.disabled = false;
+    btn.innerHTML = '🔄 最新データを取得';
+    return;
+  }
+
+  await Promise.all([loadCurrent(), loadHistory()]);
+  document.getElementById('updated-at').textContent =
+    '最終取得: ' + new Date().toLocaleString('ja-JP');
+  btn.disabled = false;
+  btn.innerHTML = '🔄 最新データを取得';
+}
+
+async function loadCurrent() {
+  try {
+    const res  = await fetch(CURRENT_CSV + '&t=' + Date.now());
+    const text = await res.text();
+    const rows = text.trim().split('\n');
+    if (rows.length < 2) throw new Error('データなし');
+
+    const cols  = rows[1].split(',');
+    const date  = (cols[0] || '').replace(/^"|"$/g, '').trim();
+    const price = parseFloat((cols[1] || '0').replace(/[^0-9.]/g, ''));
+    const diff  = parseFloat((cols[2] || '0').replace(/[^0-9.-]/g, ''));
+    const pct   = parseFloat((cols[3] || '0').replace(/[^0-9.-]/g, ''));
+
+    document.getElementById('price-val').textContent =
+      '¥' + Math.round(price).toLocaleString();
+
+    const sign = diff > 0 ? '▲' : diff < 0 ? '▼' : '－';
+    const cls  = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
+    const chgEl = document.getElementById('price-chg');
+    chgEl.textContent =
+      `${sign} ${Math.abs(Math.round(diff)).toLocaleString()}円 (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`;
+    chgEl.className = 'price-change ' + cls;
+
+    document.getElementById('price-date').textContent =
+      date.slice(0, 10).replace(/-/g, '/') + ' 時点の基準価格';
+  } catch(e) {
+    document.getElementById('price-val').textContent = 'エラー';
+    document.getElementById('price-date').innerHTML =
+      '<span style="color:#e74c3c">取得できませんでした</span>';
+  }
+}
+
+async function loadHistory() {
+  try {
+    const res  = await fetch(HISTORY_CSV + '&t=' + Date.now());
+    const text = await res.text();
+    const rows = text.trim().split('\n').slice(1); // ヘッダー除去
+
+    histData.labels = [];
+    histData.values = [];
+
+    rows.forEach(row => {
+      const [dateStr, priceStr] = row.split(',');
+      const d = (dateStr || '').replace(/^"|"$/g, '').trim();
+      const v = parseFloat((priceStr || '').replace(/[^0-9.]/g, ''));
+      if (d && v > 0) {
+        histData.labels.push(d);
+        histData.values.push(v);
+      }
+    });
+
+    renderChart(currentDays);
+  } catch(e) {
+    console.warn('履歴データ取得失敗', e);
+  }
+}
+
+/* ============================================================
+   構成銘柄
+============================================================ */
+function renderHoldings() {
+  document.getElementById('holdings-month').textContent = HOLDINGS_MONTH;
+  document.getElementById('holdings-list').innerHTML = HOLDINGS.map((h, i) => `
+    <div class="holding-row">
+      <div class="holding-rank">${i + 1}</div>
+      <div class="holding-name">
+        <div class="jp">${h.jp}</div>
+        <div class="en">${h.en}</div>
+      </div>
+      <div class="holding-pct">${h.pct}</div>
+    </div>
+  `).join('');
+}
+
+/* ============================================================
+   起動
+============================================================ */
+initChart();
+renderHoldings();
+loadAll();
+</script>
+
+</body>
+</html>

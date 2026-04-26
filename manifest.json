@@ -1,0 +1,15 @@
+{
+  "name": "イノベーティブ･フューチャー",
+  "short_name": "ファンド",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0c1a32",
+  "theme_color": "#f5a623",
+  "icons": [
+    {
+      "src": "icon.png",
+      "sizes": "any",
+      "type": "image/png"
+    }
+  ]
+}
