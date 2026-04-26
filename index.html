@@ -385,10 +385,27 @@ function initChart() {
       plugins: {
         legend: { display: false },
         tooltip: {
+          enabled: true,
+          mode: 'index',
+          intersect: false,
+          backgroundColor: 'rgba(10,25,55,0.92)',
+          borderColor: '#f5a623',
+          borderWidth: 1.5,
+          titleColor: '#dde6f5',
+          bodyColor: '#f5a623',
+          titleFont: { size: 15, weight: 'bold' },
+          bodyFont: { size: 20, weight: 'bold' },
+          padding: 14,
+          displayColors: false,
           callbacks: {
+            title: items => items[0].label,
             label: c => '¥' + Math.round(c.raw).toLocaleString()
           }
         }
+      },
+      interaction: {
+        mode: 'index',
+        intersect: false
       },
       scales: {
         x: {
