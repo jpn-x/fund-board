@@ -325,10 +325,9 @@
 
 <script>
 /* ============================================================
-   ★ 設定（Apps Script実行後にCSV URLを貼り付けてください）
+   ★ 設定（Apps Script Web AppのURLを貼り付けてください）
 ============================================================ */
-const CURRENT_CSV = 'https://docs.google.com/spreadsheets/d/19eWEfMTwxrPPnbDul5OKRO4fp2hjiEL5PxRCgg8OeLk/export?format=csv&gid=0';
-const HISTORY_CSV = 'https://docs.google.com/spreadsheets/d/19eWEfMTwxrPPnbDul5OKRO4fp2hjiEL5PxRCgg8OeLk/export?format=csv&gid=507046384';
+const WEB_APP_URL = 'https://script.google.com/macros/s/AKfycbzkwR3pse-dBRsV_MfQR7XJTPvCf3QvtBW-QGv7cbWJ6_OFUJiT18uqX_3Ke78omOOABw/exec';
 
 /* ============================================================
    構成銘柄（月次レポートから更新 → HOLDINGS_MONTH も更新）
@@ -430,7 +429,7 @@ async function loadAll() {
   btn.disabled = true;
   btn.innerHTML = '<span class="loading-spinner"></span> 取得中...';
 
-  if (CURRENT_CSV === 'SETUP_REQUIRED') {
+  if (WEB_APP_URL === 'SETUP_REQUIRED') {
     document.getElementById('setup-note').style.display = 'block';
     document.getElementById('price-val').textContent = '未設定';
     document.getElementById('price-date').textContent = '初回設定が必要です';
@@ -448,16 +447,15 @@ async function loadAll() {
 
 async function loadCurrent() {
   try {
-    const res  = await fetch(CURRENT_CSV + '&t=' + Date.now());
-    const text = await res.text();
-    const rows = text.trim().split('\n');
-    if (rows.length < 2) throw new Error('データなし');
+    const res  = await fetch(WEB_APP_URL + '?action=current&t=' + Date.now());
+    const json = await res.json();
+    if (!json.rows || json.rows.length < 2) throw new Error('データなし');
 
-    const cols  = rows[1].split(',');
-    const date  = (cols[0] || '').replace(/^"|"$/g, '').trim();
-    const price = parseFloat((cols[1] || '0').replace(/[^0-9.]/g, ''));
-    const diff  = parseFloat((cols[2] || '0').replace(/[^0-9.-]/g, ''));
-    const pct   = parseFloat((cols[3] || '0').replace(/[^0-9.-]/g, ''));
+    const row   = json.rows[1];
+    const date  = row[0] || '';
+    const price = parseFloat(row[1]) || 0;
+    const diff  = parseFloat(row[2]) || 0;
+    const pct   = parseFloat(row[3]) || 0;
 
     document.getElementById('price-val').textContent =
       '¥' + Math.round(price).toLocaleString();
@@ -469,8 +467,9 @@ async function loadCurrent() {
       `${sign} ${Math.abs(Math.round(diff)).toLocaleString()}円 (${pct >= 0 ? '+' : ''}${pct.toFixed(2)}%)`;
     chgEl.className = 'price-change ' + cls;
 
+    const dateStr = typeof date === 'string' ? date : new Date(date).toLocaleDateString('ja-JP');
     document.getElementById('price-date').textContent =
-      date.slice(0, 10).replace(/-/g, '/') + ' 時点の基準価格';
+      dateStr.slice(0, 10).replace(/-/g, '/') + ' 時点の基準価格';
   } catch(e) {
     document.getElementById('price-val').textContent = 'エラー';
     document.getElementById('price-date').innerHTML =
@@ -480,17 +479,16 @@ async function loadCurrent() {
 
 async function loadHistory() {
   try {
-    const res  = await fetch(HISTORY_CSV + '&t=' + Date.now());
-    const text = await res.text();
-    const rows = text.trim().split('\n').slice(1); // ヘッダー除去
+    const res  = await fetch(WEB_APP_URL + '?action=history&t=' + Date.now());
+    const json = await res.json();
+    if (!json.rows) return;
 
     histData.labels = [];
     histData.values = [];
 
-    rows.forEach(row => {
-      const [dateStr, priceStr] = row.split(',');
-      const d = (dateStr || '').replace(/^"|"$/g, '').trim();
-      const v = parseFloat((priceStr || '').replace(/[^0-9.]/g, ''));
+    json.rows.slice(1).forEach(row => { // ヘッダー除去
+      const d = row[0] ? String(row[0]).trim() : '';
+      const v = parseFloat(row[1]) || 0;
       if (d && v > 0) {
         histData.labels.push(d);
         histData.values.push(v);
