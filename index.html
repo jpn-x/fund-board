@@ -147,6 +147,7 @@
     /* ===== 期間ボタン ===== */
     .period-row {
       display: flex;
+      flex-wrap: wrap;
       gap: 8px;
       margin-bottom: 18px;
       flex-wrap: wrap;
@@ -154,13 +155,13 @@
 
     .period-btn {
       flex: 1;
-      min-width: 52px;
-      padding: 12px 6px;
+      min-width: 72px;
+      padding: 14px 6px;
       border: 2px solid rgba(245,166,35,0.35);
       border-radius: 10px;
       background: transparent;
       color: var(--gray);
-      font-size: 16px;
+      font-size: 20px;
       font-weight: bold;
       cursor: pointer;
       transition: all 0.15s;
@@ -295,11 +296,14 @@
   <div class="section-card">
     <div class="section-title">📊 基準価格の推移</div>
     <div class="period-row">
-      <button class="period-btn active" onclick="switchPeriod(30,  this)">1ヶ月</button>
-      <button class="period-btn"        onclick="switchPeriod(90,  this)">3ヶ月</button>
-      <button class="period-btn"        onclick="switchPeriod(180, this)">6ヶ月</button>
-      <button class="period-btn"        onclick="switchPeriod(365, this)">1年</button>
-      <button class="period-btn"        onclick="switchPeriod(0,   this)">全期間</button>
+      <button class="period-btn active" onclick="switchPeriod(30,   this)">1ヶ月</button>
+      <button class="period-btn"        onclick="switchPeriod(90,   this)">3ヶ月</button>
+      <button class="period-btn"        onclick="switchPeriod(180,  this)">6ヶ月</button>
+      <button class="period-btn"        onclick="switchPeriod(365,  this)">1年</button>
+      <button class="period-btn"        onclick="switchPeriod(1095, this)">3年</button>
+      <button class="period-btn"        onclick="switchPeriod(1825, this)">5年</button>
+      <button class="period-btn"        onclick="switchPeriodYTD(this)">今年</button>
+      <button class="period-btn"        onclick="switchPeriod(0,    this)">設定来</button>
     </div>
     <div class="chart-wrap">
       <canvas id="chart"></canvas>
@@ -419,6 +423,13 @@ function switchPeriod(days, btn) {
   document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   renderChart(days);
+}
+
+function switchPeriodYTD(btn) {
+  const now = new Date();
+  const jan1 = new Date(now.getFullYear(), 0, 1);
+  const days = Math.ceil((now - jan1) / (1000 * 60 * 60 * 24));
+  switchPeriod(days, btn);
 }
 
 /* ============================================================
