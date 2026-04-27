@@ -304,7 +304,7 @@
 
   <!-- チャート -->
   <div class="section-card">
-    <div class="section-title">📊 基準価格の推移</div>
+    <div class="section-title">📊 基準価格の推移<span style="font-size:12px;font-weight:normal;color:rgba(255,255,255,0.65);margin-left:6px">※スタート価格は10,000円です。</span></div>
     <div class="period-row">
       <button class="period-btn active" onclick="switchPeriod(30,   this)">1ヶ月</button>
       <button class="period-btn"        onclick="switchPeriod(90,   this)">3ヶ月</button>
@@ -313,7 +313,7 @@
       <button class="period-btn"        onclick="switchPeriod(1095, this)">3年</button>
       <button class="period-btn"        onclick="switchPeriod(1825, this)">5年</button>
       <button class="period-btn"        onclick="switchPeriodYTD(this)">今年</button>
-      <button class="period-btn"        onclick="switchPeriod(0,    this)">設定来</button>
+      <button class="period-btn"        onclick="switchPeriod(0,    this)">全期間</button>
     </div>
     <div class="chart-wrap">
       <canvas id="chart"></canvas>
