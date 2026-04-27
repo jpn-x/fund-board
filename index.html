@@ -534,17 +534,17 @@ async function loadHistory() {
     const json = await res.json();
     if (!json.rows) return;
 
-    histData.labels = [];
-    histData.values = [];
-
-    json.rows.slice(1).forEach(row => { // ヘッダー除去
+    // 日付・価格ペアを収集して日付順にソート
+    const pairs = [];
+    json.rows.slice(1).forEach(row => {
       const d = toJstDateStr(row[0]);
       const v = parseFloat(row[1]) || 0;
-      if (d && v > 0) {
-        histData.labels.push(d);
-        histData.values.push(v);
-      }
+      if (d && v > 0) pairs.push([d, v]);
     });
+    pairs.sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
+
+    histData.labels = pairs.map(p => p[0]);
+    histData.values = pairs.map(p => p[1]);
 
     renderChart(currentDays);
   } catch(e) {
