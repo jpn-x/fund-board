@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>プロスペ 基準価格</title>
+  <meta name="theme-color" content="#0c1a32">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="プロスペ">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="icon" href="icon.png" type="image/png">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      height: 100%;
+      background: #0c1a32;
+      color: #fff;
+      font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 24px 20px;
+      gap: 0;
+    }
+
+    /* ===== ファンド名 ===== */
+    .fund-name {
+      font-size: 18px;
+      color: #f5a623;
+      font-weight: bold;
+      text-align: center;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+    }
+    .fund-sub {
+      font-size: 14px;
+      color: #7a9cbf;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    /* ===== 価格メイン ===== */
+    .price-wrap {
+      text-align: center;
+      margin-bottom: 28px;
+    }
+
+    .price-label {
+      font-size: 20px;
+      color: #aac0d8;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+
+    .price-value {
+      font-size: 88px;
+      font-weight: bold;
+      letter-spacing: -3px;
+      line-height: 1;
+      color: #ffffff;
+      margin-bottom: 20px;
+    }
+
+    .price-change {
+      font-size: 44px;
+      font-weight: bold;
+      line-height: 1.2;
+    }
+    .price-change.up   { color: #2ecc71; }
+    .price-change.down { color: #e74c3c; }
+    .price-change.flat { color: #aaa;    }
+
+    .price-pct {
+      font-size: 32px;
+      font-weight: bold;
+      margin-top: 6px;
+    }
+    .price-pct.up   { color: #2ecc71; }
+    .price-pct.down { color: #e74c3c; }
+    .price-pct.flat { color: #aaa;    }
+
+    /* ===== 日付 ===== */
+    .price-date {
+      font-size: 20px;
+      color: #7a9cbf;
+      margin-top: 24px;
+      text-align: center;
+      line-height: 1.6;
+    }
+
+    /* ===== 区切り ===== */
+    .divider {
+      width: 80%;
+      max-width: 360px;
+      height: 2px;
+      background: rgba(245,166,35,0.25);
+      margin: 36px 0;
+    }
+
+    /* ===== 更新ボタン ===== */
+    .reload-btn {
+      background: #f5a623;
+      color: #0c1a32;
+      border: none;
+      border-radius: 60px;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 22px 64px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 18px rgba(245,166,35,0.4);
+      transition: opacity 0.15s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .reload-btn:active {
+      opacity: 0.85;
+      transform: scale(0.97);
+    }
+    .reload-btn:disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    /* ===== みんかぶリンク ===== */
+    .ext-link {
+      margin-top: 32px;
+      font-size: 16px;
+      color: #5a88b0;
+      text-decoration: none;
+      text-align: center;
+      padding: 12px 20px;
+      border: 1px solid #2a4a6a;
+      border-radius: 30px;
+    }
+    .ext-link:active { opacity: 0.7; }
+
+    /* ===== エラー ===== */
+    .error-msg {
+      font-size: 18px;
+      color: #e74c3c;
+      text-align: center;
+      margin-top: 12px;
+    }
+
+    /* スマホ最適化 */
+    @media (max-width: 480px) {
+      .price-value  { font-size: 72px; }
+      .price-change { font-size: 36px; }
+      .price-pct    { font-size: 28px; }
+      .reload-btn   { font-size: 24px; padding: 20px 56px; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="fund-name">プロスペ</div>
+  <div class="fund-sub">グローバル・プロスペクティブ・ファンド</div>
+
+  <div class="price-wrap">
+    <div class="price-label">📌 基準価格（1万口あたり）</div>
+    <div class="price-value" id="price-val">---</div>
+    <div class="price-change flat" id="price-chg">---</div>
+    <div class="price-pct  flat" id="price-pct">---</div>
+    <div class="price-date" id="price-date">読み込み中…</div>
+    <div class="error-msg" id="error-msg" style="display:none"></div>
+  </div>
+
+  <div class="divider"></div>
+
+  <button class="reload-btn" id="reload-btn" onclick="loadData()">
+    🔄 最新に更新
+  </button>
+
+  <a class="ext-link"
+     href="https://itf.minkabu.jp/fund/02312196"
+     target="_blank" rel="noopener">
+    📊 みんかぶで詳細を見る →
+  </a>
+
+<script>
+  const CURRENT_CSV = 'https://docs.google.com/spreadsheets/d/13gQhvkm-opUl4hNHmDSZU1RmBAVLjzPcubRhSlrrZiI/export?format=csv&gid=0';
+
+  // CSV→行×列の2次元配列
+  function parseCSV(text) {
+    return text.trim().split('\n').map(line =>
+      line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
+    );
+  }
+
+  // Google Sheets の日付文字列（M/D/YYYY HH:MM:SS）→ 日本語表示
+  function toDisplayDate(str) {
+    if (!str) return '';
+    // M/D/YYYY 形式（Google Sheets 英語ロケール）
+    let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) return m[3] + '年' + parseInt(m[1]) + '月' + parseInt(m[2]) + '日';
+    // YYYY/MM/DD 形式
+    m = str.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
+    if (m) return m[1] + '年' + parseInt(m[2]) + '月' + parseInt(m[3]) + '日';
+    // YYYY-MM-DD 形式
+    m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return m[1] + '年' + parseInt(m[2]) + '月' + parseInt(m[3]) + '日';
+    return str;
+  }
+
+  async function loadData() {
+    const btn = document.getElementById('reload-btn');
+    const errEl = document.getElementById('error-msg');
+    btn.disabled = true;
+    btn.textContent = '取得中…';
+    errEl.style.display = 'none';
+
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000); // 10秒タイムアウト
+      const res = await fetch(CURRENT_CSV + '&t=' + Date.now(), { signal: controller.signal });
+      clearTimeout(timer);
+
+      const rows = parseCSV(await res.text());
+      if (rows.length < 2) throw new Error('データが空です');
+
+      const row   = rows[1];
+      const price = parseFloat(row[1]) || 0;
+      const diff  = parseFloat(row[2]) || 0;
+      const pct   = parseFloat(row[3]) || 0;
+      const dateStr = toDisplayDate(row[0]);
+
+      // 価格
+      document.getElementById('price-val').textContent =
+        '¥' + Math.round(price).toLocaleString('ja-JP');
+
+      // 前日比
+      const sign = diff > 0 ? '▲' : diff < 0 ? '▼' : '－';
+      const cls  = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
+
+      const chgEl = document.getElementById('price-chg');
+      chgEl.textContent = sign + ' ' + Math.abs(Math.round(diff)).toLocaleString('ja-JP') + '円';
+      chgEl.className = 'price-change ' + cls;
+
+      const pctEl = document.getElementById('price-pct');
+      pctEl.textContent = '(' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)';
+      pctEl.className = 'price-pct ' + cls;
+
+      // 日付
+      document.getElementById('price-date').textContent =
+        dateStr + ' 時点の基準価格';
+
+    } catch(e) {
+      errEl.textContent = e.name === 'AbortError'
+        ? '⚠ タイムアウト。しばらく待ってから再度お試しください。'
+        : '⚠ データを取得できませんでした。';
+      errEl.style.display = 'block';
+      document.getElementById('price-date').textContent = '';
+    }
+
+    btn.disabled = false;
+    btn.textContent = '🔄 最新に更新';
+  }
+
+  // ページを開いたら自動取得
+  loadData();
+</script>
+</body>
+</html>
