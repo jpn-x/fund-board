@@ -9,11 +9,11 @@
   <meta name="apple-mobile-web-app-title" content="プロスペ">
   <link rel="apple-touch-icon" href="icon.png">
   <link rel="icon" href="icon.png" type="image/png">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
     html, body {
-      height: 100%;
       background: #0c1a32;
       color: #fff;
       font-family: 'Hiragino Sans', 'Meiryo', sans-serif;
@@ -24,10 +24,38 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      justify-content: center;
       min-height: 100vh;
-      padding: 24px 20px;
+      padding: 32px 20px 48px;
       gap: 0;
+    }
+
+    /* ===== 共通ボタン ===== */
+    .main-btn {
+      display: block;
+      background: #f5a623;
+      color: #0c1a32;
+      border: none;
+      border-radius: 60px;
+      font-size: 28px;
+      font-weight: bold;
+      padding: 22px 0;
+      width: 100%;
+      max-width: 400px;
+      cursor: pointer;
+      letter-spacing: 2px;
+      box-shadow: 0 4px 18px rgba(245,166,35,0.4);
+      transition: opacity 0.15s, transform 0.1s;
+      -webkit-tap-highlight-color: transparent;
+      text-decoration: none;
+      text-align: center;
+    }
+    .main-btn:active {
+      opacity: 0.85;
+      transform: scale(0.97);
+    }
+    .main-btn:disabled {
+      opacity: 0.55;
+      cursor: default;
     }
 
     /* ===== ファンド名 ===== */
@@ -37,6 +65,7 @@
       font-weight: bold;
       text-align: center;
       letter-spacing: 0.5px;
+      margin-top: 32px;
       margin-bottom: 6px;
     }
     .fund-sub {
@@ -104,42 +133,27 @@
       margin: 36px 0;
     }
 
-    /* ===== 更新ボタン ===== */
-    .reload-btn {
-      background: #f5a623;
-      color: #0c1a32;
-      border: none;
-      border-radius: 60px;
-      font-size: 28px;
-      font-weight: bold;
-      padding: 22px 64px;
-      cursor: pointer;
-      letter-spacing: 2px;
-      box-shadow: 0 4px 18px rgba(245,166,35,0.4);
-      transition: opacity 0.15s, transform 0.1s;
-      -webkit-tap-highlight-color: transparent;
+    /* ===== チャート ===== */
+    .chart-wrap {
+      width: 100%;
+      max-width: 500px;
+      background: rgba(255,255,255,0.04);
+      border-radius: 16px;
+      padding: 16px 12px;
     }
-    .reload-btn:active {
-      opacity: 0.85;
-      transform: scale(0.97);
-    }
-    .reload-btn:disabled {
-      opacity: 0.55;
-      cursor: default;
-    }
-
-    /* ===== みんかぶリンク ===== */
-    .ext-link {
-      margin-top: 32px;
+    .chart-title {
       font-size: 16px;
-      color: #5a88b0;
-      text-decoration: none;
+      color: #aac0d8;
       text-align: center;
-      padding: 12px 20px;
-      border: 1px solid #2a4a6a;
-      border-radius: 30px;
+      margin-bottom: 14px;
+      letter-spacing: 0.5px;
     }
-    .ext-link:active { opacity: 0.7; }
+    .chart-loading {
+      font-size: 14px;
+      color: #7a9cbf;
+      text-align: center;
+      padding: 32px 0;
+    }
 
     /* ===== エラー ===== */
     .error-msg {
@@ -154,11 +168,16 @@
       .price-value  { font-size: 72px; }
       .price-change { font-size: 36px; }
       .price-pct    { font-size: 28px; }
-      .reload-btn   { font-size: 24px; padding: 20px 56px; }
+      .main-btn     { font-size: 24px; padding: 20px 0; }
     }
   </style>
 </head>
 <body>
+
+  <!-- 🔄 更新ボタン（最上部） -->
+  <button class="main-btn" id="reload-btn" onclick="loadData()">
+    🔄 最新に更新
+  </button>
 
   <div class="fund-name">プロスペ</div>
   <div class="fund-sub">グローバル・プロスペクティブ・ファンド</div>
@@ -174,38 +193,51 @@
 
   <div class="divider"></div>
 
-  <button class="reload-btn" id="reload-btn" onclick="loadData()">
-    🔄 最新に更新
-  </button>
+  <!-- チャート -->
+  <div class="chart-wrap">
+    <div class="chart-title">📈 基準価格の推移（全期間）</div>
+    <div class="chart-loading" id="chart-loading">読み込み中…</div>
+    <canvas id="priceChart" style="display:none"></canvas>
+  </div>
 
-  <a class="ext-link"
-     href="https://itf.minkabu.jp/fund/02312196"
-     target="_blank" rel="noopener">
-    📊 みんかぶで詳細を見る →
+  <div class="divider"></div>
+
+  <!-- チャートグラフを見る（詳細ページへ） -->
+  <a class="main-btn" href="index.html">
+    📊 チャートグラフを見る
   </a>
 
 <script>
   const CURRENT_CSV = 'https://docs.google.com/spreadsheets/d/13gQhvkm-opUl4hNHmDSZU1RmBAVLjzPcubRhSlrrZiI/export?format=csv&gid=0';
+  const HISTORY_CSV = 'https://docs.google.com/spreadsheets/d/13gQhvkm-opUl4hNHmDSZU1RmBAVLjzPcubRhSlrrZiI/export?format=csv&gid=477403851';
 
-  // CSV→行×列の2次元配列
+  let chartInstance = null;
+
   function parseCSV(text) {
     return text.trim().split('\n').map(line =>
       line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
     );
   }
 
-  // Google Sheets の日付文字列（M/D/YYYY HH:MM:SS）→ 日本語表示
   function toDisplayDate(str) {
     if (!str) return '';
-    // M/D/YYYY 形式（Google Sheets 英語ロケール）
     let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
     if (m) return m[3] + '年' + parseInt(m[1]) + '月' + parseInt(m[2]) + '日';
-    // YYYY/MM/DD 形式
     m = str.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
     if (m) return m[1] + '年' + parseInt(m[2]) + '月' + parseInt(m[3]) + '日';
-    // YYYY-MM-DD 形式
     m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
     if (m) return m[1] + '年' + parseInt(m[2]) + '月' + parseInt(m[3]) + '日';
+    return str;
+  }
+
+  function toShortDate(str) {
+    if (!str) return '';
+    let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) return parseInt(m[1]) + '/' + parseInt(m[2]);
+    m = str.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
+    if (m) return parseInt(m[2]) + '/' + parseInt(m[3]);
+    m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return parseInt(m[2]) + '/' + parseInt(m[3]);
     return str;
   }
 
@@ -216,9 +248,17 @@
     btn.textContent = '取得中…';
     errEl.style.display = 'none';
 
+    await Promise.all([loadCurrent(), loadChart()]);
+
+    btn.disabled = false;
+    btn.textContent = '🔄 最新に更新';
+  }
+
+  async function loadCurrent() {
+    const errEl = document.getElementById('error-msg');
     try {
       const controller = new AbortController();
-      const timer = setTimeout(() => controller.abort(), 10000); // 10秒タイムアウト
+      const timer = setTimeout(() => controller.abort(), 10000);
       const res = await fetch(CURRENT_CSV + '&t=' + Date.now(), { signal: controller.signal });
       clearTimeout(timer);
 
@@ -231,11 +271,9 @@
       const pct   = parseFloat(row[3]) || 0;
       const dateStr = toDisplayDate(row[0]);
 
-      // 価格
       document.getElementById('price-val').textContent =
         '¥' + Math.round(price).toLocaleString('ja-JP');
 
-      // 前日比
       const sign = diff > 0 ? '▲' : diff < 0 ? '▼' : '－';
       const cls  = diff > 0 ? 'up' : diff < 0 ? 'down' : 'flat';
 
@@ -247,7 +285,6 @@
       pctEl.textContent = '(' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)';
       pctEl.className = 'price-pct ' + cls;
 
-      // 日付
       document.getElementById('price-date').textContent =
         dateStr + ' 時点の基準価格';
 
@@ -258,12 +295,81 @@
       errEl.style.display = 'block';
       document.getElementById('price-date').textContent = '';
     }
-
-    btn.disabled = false;
-    btn.textContent = '🔄 最新に更新';
   }
 
-  // ページを開いたら自動取得
+  async function loadChart() {
+    const loadingEl = document.getElementById('chart-loading');
+    const canvasEl  = document.getElementById('priceChart');
+    try {
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 10000);
+      const res = await fetch(HISTORY_CSV + '&t=' + Date.now(), { signal: controller.signal });
+      clearTimeout(timer);
+
+      const rows = parseCSV(await res.text());
+      if (rows.length < 2) throw new Error('データなし');
+
+      const dataRows = rows.slice(1).filter(r => r[0] && r[1]);
+      const allLabels = dataRows.map(r => toShortDate(r[0]));
+      const prices    = dataRows.map(r => parseFloat(r[1]) || 0);
+
+      // ラベルを間引き（最大10個表示）
+      const step = Math.max(1, Math.floor(allLabels.length / 10));
+      const sparseLabels = allLabels.map((l, i) =>
+        (i % step === 0 || i === allLabels.length - 1) ? l : ''
+      );
+
+      loadingEl.style.display = 'none';
+      canvasEl.style.display  = 'block';
+
+      if (chartInstance) chartInstance.destroy();
+      chartInstance = new Chart(canvasEl.getContext('2d'), {
+        type: 'line',
+        data: {
+          labels: sparseLabels,
+          datasets: [{
+            data: prices,
+            borderColor: '#f5a623',
+            backgroundColor: 'rgba(245,166,35,0.10)',
+            borderWidth: 2.5,
+            pointRadius: 0,
+            fill: true,
+            tension: 0.3,
+          }]
+        },
+        options: {
+          responsive: true,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                title:  (items) => allLabels[items[0].dataIndex],
+                label:  (item)  => '¥' + Math.round(item.raw).toLocaleString('ja-JP'),
+              }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#7a9cbf', font: { size: 11 }, maxRotation: 0 },
+              grid:  { color: 'rgba(255,255,255,0.05)' },
+            },
+            y: {
+              ticks: {
+                color: '#7a9cbf',
+                font:  { size: 11 },
+                callback: v => '¥' + Math.round(v / 1000) + 'k',
+              },
+              grid: { color: 'rgba(255,255,255,0.05)' },
+            }
+          }
+        }
+      });
+    } catch(e) {
+      loadingEl.textContent = '⚠ チャート取得失敗';
+      console.warn('chart load failed', e);
+    }
+  }
+
   loadData();
 </script>
 </body>
