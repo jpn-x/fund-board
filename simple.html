@@ -163,6 +163,84 @@
       margin-top: 12px;
     }
 
+    /* ===== みんかぶ インアプリブラウザ ===== */
+    #mk-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      flex-direction: column;
+      background: #000;
+    }
+    #mk-overlay.open {
+      display: flex;
+    }
+
+    #mk-bar {
+      flex-shrink: 0;
+      background: #111;
+      height: 52px;
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 8px;
+      border-bottom: 1px solid #333;
+    }
+    #mk-title {
+      flex: 1;
+      text-align: center;
+      font-size: 14px;
+      color: #ccc;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .mk-bar-btn {
+      background: #2a2a2a;
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: bold;
+      padding: 8px 16px;
+      cursor: pointer;
+      white-space: nowrap;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .mk-bar-btn:active {
+      background: #444;
+    }
+
+    #mk-frame {
+      flex: 1;
+      border: none;
+      width: 100%;
+      background: #fff;
+    }
+
+    #mk-blocked {
+      display: none;
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      background: #0c1a32;
+      color: #aac0d8;
+      font-size: 16px;
+      text-align: center;
+      padding: 24px;
+    }
+    #mk-blocked a {
+      background: #f5a623;
+      color: #0c1a32;
+      font-size: 18px;
+      font-weight: bold;
+      padding: 16px 32px;
+      border-radius: 40px;
+      text-decoration: none;
+    }
+
     /* スマホ最適化 */
     @media (max-width: 480px) {
       .price-value  { font-size: 72px; }
@@ -202,10 +280,30 @@
 
   <div class="divider"></div>
 
-  <!-- チャートグラフを見る（詳細ページへ） -->
-  <a class="main-btn" href="index.html">
+  <!-- チャートグラフを見る -->
+  <button class="main-btn" onclick="openMinkabu()">
     📊 チャートグラフを見る
-  </a>
+  </button>
+
+  <!-- ===== みんかぶ インアプリブラウザ ===== -->
+  <div id="mk-overlay">
+    <div id="mk-bar">
+      <button class="mk-bar-btn" onclick="mkBack()">
+        ← 戻る
+      </button>
+      <span id="mk-title">みんかぶ</span>
+      <button class="mk-bar-btn" onclick="closeMinkabu()">
+        ✕ 閉じる
+      </button>
+    </div>
+    <iframe id="mk-frame" src="" title="みんかぶ" allowfullscreen></iframe>
+    <div id="mk-blocked">
+      <p>このページはiFrame表示に対応していません</p>
+      <a id="mk-ext-link" href="https://itf.minkabu.jp/fund/02312196" target="_blank" rel="noopener">
+        🔗 ブラウザで開く →
+      </a>
+    </div>
+  </div>
 
 <script>
   const CURRENT_CSV = 'https://docs.google.com/spreadsheets/d/13gQhvkm-opUl4hNHmDSZU1RmBAVLjzPcubRhSlrrZiI/export?format=csv&gid=0';
@@ -371,6 +469,51 @@
   }
 
   loadData();
+
+  // ===== みんかぶ インアプリブラウザ =====
+  const MK_URL = 'https://itf.minkabu.jp/fund/02312196';
+
+  function openMinkabu() {
+    const overlay = document.getElementById('mk-overlay');
+    const frame   = document.getElementById('mk-frame');
+    const blocked = document.getElementById('mk-blocked');
+    blocked.style.display = 'none';
+    frame.style.display   = 'block';
+    frame.src = MK_URL;
+    overlay.classList.add('open');
+    // iFrame ブロック検知（2秒後にコンテンツ確認）
+    frame.onload = function() {
+      try {
+        // 同一オリジン以外は securityError が出る→問題なし
+        // ただし blank/about:blank に飛んだ場合はブロックされてる
+        const loc = frame.contentWindow.location.href;
+        if (loc === 'about:blank') throw new Error('blocked');
+      } catch(e) {
+        // cross-origin は SecurityError → これは正常（コンテンツあり）
+        if (e.name !== 'SecurityError') {
+          // 本当にブロックされた
+          frame.style.display   = 'none';
+          blocked.style.display = 'flex';
+        }
+      }
+    };
+  }
+
+  function closeMinkabu() {
+    const overlay = document.getElementById('mk-overlay');
+    const frame   = document.getElementById('mk-frame');
+    overlay.classList.remove('open');
+    frame.src = '';
+  }
+
+  function mkBack() {
+    const frame = document.getElementById('mk-frame');
+    try {
+      frame.contentWindow.history.back();
+    } catch(e) {
+      // cross-origin の場合は無視
+    }
+  }
 </script>
 </body>
 </html>
