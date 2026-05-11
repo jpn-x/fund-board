@@ -25,38 +25,29 @@
       flex-direction: column;
       align-items: center;
       min-height: 100vh;
-      padding: 32px 20px 48px;
-      gap: 0;
+      padding: 28px 16px 48px;
     }
 
-    /* ===== 共通ボタン ===== */
+    /* ===== 更新ボタン ===== */
     .main-btn {
       display: block;
       background: #f5a623;
       color: #0c1a32;
       border: none;
       border-radius: 60px;
-      font-size: 28px;
+      font-size: 26px;
       font-weight: bold;
-      padding: 22px 0;
+      padding: 20px 0;
       width: 100%;
       max-width: 400px;
       cursor: pointer;
       letter-spacing: 2px;
       box-shadow: 0 4px 18px rgba(245,166,35,0.4);
       transition: opacity 0.15s, transform 0.1s;
-      -webkit-tap-highlight-color: transparent;
-      text-decoration: none;
       text-align: center;
     }
-    .main-btn:active {
-      opacity: 0.85;
-      transform: scale(0.97);
-    }
-    .main-btn:disabled {
-      opacity: 0.55;
-      cursor: default;
-    }
+    .main-btn:active  { opacity: 0.85; transform: scale(0.97); }
+    .main-btn:disabled { opacity: 0.55; cursor: default; }
 
     /* ===== ファンド名 ===== */
     .fund-name {
@@ -64,189 +55,177 @@
       color: #f5a623;
       font-weight: bold;
       text-align: center;
-      letter-spacing: 0.5px;
-      margin-top: 32px;
-      margin-bottom: 6px;
+      margin-top: 28px;
+      margin-bottom: 4px;
     }
     .fund-sub {
-      font-size: 14px;
+      font-size: 13px;
       color: #7a9cbf;
       text-align: center;
-      margin-bottom: 40px;
+      margin-bottom: 32px;
     }
 
     /* ===== 価格メイン ===== */
-    .price-wrap {
-      text-align: center;
-      margin-bottom: 28px;
-    }
+    .price-wrap { text-align: center; margin-bottom: 24px; }
 
     .price-label {
-      font-size: 20px;
+      font-size: 18px;
       color: #aac0d8;
-      margin-bottom: 12px;
+      margin-bottom: 10px;
       letter-spacing: 1px;
     }
-
     .price-value {
-      font-size: 88px;
+      font-size: 84px;
       font-weight: bold;
       letter-spacing: -3px;
       line-height: 1;
       color: #ffffff;
-      margin-bottom: 20px;
+      margin-bottom: 16px;
     }
-
-    .price-change {
-      font-size: 44px;
-      font-weight: bold;
-      line-height: 1.2;
-    }
+    .price-change { font-size: 40px; font-weight: bold; line-height: 1.2; }
     .price-change.up   { color: #2ecc71; }
     .price-change.down { color: #e74c3c; }
     .price-change.flat { color: #aaa;    }
 
-    .price-pct {
-      font-size: 32px;
-      font-weight: bold;
-      margin-top: 6px;
-    }
+    .price-pct { font-size: 28px; font-weight: bold; margin-top: 4px; }
     .price-pct.up   { color: #2ecc71; }
     .price-pct.down { color: #e74c3c; }
     .price-pct.flat { color: #aaa;    }
 
-    /* ===== 日付 ===== */
     .price-date {
-      font-size: 20px;
+      font-size: 17px;
       color: #7a9cbf;
-      margin-top: 24px;
-      text-align: center;
-      line-height: 1.6;
+      margin-top: 18px;
+      line-height: 1.5;
+    }
+    .error-msg {
+      font-size: 16px;
+      color: #e74c3c;
+      margin-top: 10px;
     }
 
     /* ===== 区切り ===== */
     .divider {
-      width: 80%;
-      max-width: 360px;
+      width: 88%;
+      max-width: 440px;
       height: 2px;
-      background: rgba(245,166,35,0.25);
-      margin: 36px 0;
+      background: rgba(245,166,35,0.22);
+      margin: 28px 0;
     }
 
-    /* ===== チャート ===== */
-    .chart-wrap {
+    /* ===== チャートセクション ===== */
+    .chart-section {
       width: 100%;
-      max-width: 500px;
-      background: rgba(255,255,255,0.04);
-      border-radius: 16px;
-      padding: 16px 12px;
+      max-width: 520px;
     }
-    .chart-title {
+
+    .chart-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    .chart-label {
       font-size: 16px;
       color: #aac0d8;
-      text-align: center;
-      margin-bottom: 14px;
+      font-weight: bold;
       letter-spacing: 0.5px;
     }
-    .chart-loading {
-      font-size: 14px;
-      color: #7a9cbf;
-      text-align: center;
-      padding: 32px 0;
-    }
 
-    /* ===== エラー ===== */
-    .error-msg {
-      font-size: 18px;
-      color: #e74c3c;
-      text-align: center;
-      margin-top: 12px;
-    }
-
-    /* ===== みんかぶ インアプリブラウザ ===== */
-    #mk-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 9999;
-      flex-direction: column;
-      background: #000;
-    }
-    #mk-overlay.open {
+    /* 期間ボタン */
+    .period-btns {
       display: flex;
+      gap: 6px;
     }
-
-    #mk-bar {
-      flex-shrink: 0;
-      background: #111;
-      height: 52px;
-      display: flex;
-      align-items: center;
-      padding: 0 8px;
-      gap: 8px;
-      border-bottom: 1px solid #333;
-    }
-    #mk-title {
-      flex: 1;
-      text-align: center;
-      font-size: 14px;
-      color: #ccc;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-    .mk-bar-btn {
-      background: #2a2a2a;
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      font-size: 16px;
+    .period-btn {
+      background: rgba(255,255,255,0.08);
+      color: #aac0d8;
+      border: 1px solid rgba(255,255,255,0.15);
+      border-radius: 20px;
+      font-size: 15px;
       font-weight: bold;
-      padding: 8px 16px;
+      padding: 6px 13px;
       cursor: pointer;
-      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
       -webkit-tap-highlight-color: transparent;
     }
-    .mk-bar-btn:active {
-      background: #444;
-    }
-
-    #mk-frame {
-      flex: 1;
-      border: none;
-      width: 100%;
-      background: #fff;
-    }
-
-    #mk-blocked {
-      display: none;
-      flex: 1;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-      background: #0c1a32;
-      color: #aac0d8;
-      font-size: 16px;
-      text-align: center;
-      padding: 24px;
-    }
-    #mk-blocked a {
+    .period-btn.active {
       background: #f5a623;
       color: #0c1a32;
-      font-size: 18px;
-      font-weight: bold;
-      padding: 16px 32px;
-      border-radius: 40px;
-      text-decoration: none;
+      border-color: #f5a623;
+    }
+    .period-btn:active { opacity: 0.75; }
+
+    /* チャート本体 */
+    .chart-box {
+      background: rgba(255,255,255,0.04);
+      border-radius: 14px;
+      padding: 14px 10px 10px;
+      margin-bottom: 16px;
+      position: relative;
+      min-height: 180px;
+    }
+    .chart-loading {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+      color: #7a9cbf;
     }
 
+    /* 統計カード */
+    .chart-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.05);
+      border-radius: 10px;
+      padding: 12px 8px;
+      text-align: center;
+    }
+    .stat-label {
+      font-size: 12px;
+      color: #7a9cbf;
+      margin-bottom: 6px;
+      letter-spacing: 0.3px;
+    }
+    .stat-val {
+      font-size: 15px;
+      font-weight: bold;
+      color: #fff;
+      letter-spacing: -0.5px;
+    }
+    .stat-val.up   { color: #2ecc71; }
+    .stat-val.down { color: #e74c3c; }
+
+    /* ===== 外部リンク ===== */
+    .ext-link {
+      margin-top: 28px;
+      font-size: 15px;
+      color: #5a88b0;
+      text-decoration: none;
+      padding: 10px 20px;
+      border: 1px solid #2a4a6a;
+      border-radius: 24px;
+      display: inline-block;
+    }
+    .ext-link:active { opacity: 0.7; }
+
     /* スマホ最適化 */
-    @media (max-width: 480px) {
-      .price-value  { font-size: 72px; }
-      .price-change { font-size: 36px; }
-      .price-pct    { font-size: 28px; }
-      .main-btn     { font-size: 24px; padding: 20px 0; }
+    @media (max-width: 420px) {
+      .price-value  { font-size: 68px; }
+      .price-change { font-size: 34px; }
+      .price-pct    { font-size: 24px; }
+      .main-btn     { font-size: 22px; padding: 18px 0; }
+      .period-btn   { font-size: 13px; padding: 5px 10px; }
+      .stat-val     { font-size: 13px; }
     }
   </style>
 </head>
@@ -260,114 +239,220 @@
   <div class="fund-name">プロスペ</div>
   <div class="fund-sub">グローバル・プロスペクティブ・ファンド</div>
 
+  <!-- 価格表示 -->
   <div class="price-wrap">
     <div class="price-label">📌 基準価格（1万口あたり）</div>
     <div class="price-value" id="price-val">---</div>
     <div class="price-change flat" id="price-chg">---</div>
-    <div class="price-pct  flat" id="price-pct">---</div>
+    <div class="price-pct   flat" id="price-pct">---</div>
     <div class="price-date" id="price-date">読み込み中…</div>
-    <div class="error-msg" id="error-msg" style="display:none"></div>
+    <div class="error-msg"  id="error-msg" style="display:none"></div>
   </div>
 
   <div class="divider"></div>
 
-  <!-- チャート -->
-  <div class="chart-wrap">
-    <div class="chart-title">📈 基準価格の推移（全期間）</div>
-    <div class="chart-loading" id="chart-loading">読み込み中…</div>
-    <canvas id="priceChart" style="display:none"></canvas>
+  <!-- チャートセクション -->
+  <div class="chart-section">
+
+    <div class="chart-header">
+      <span class="chart-label">📈 基準価格の推移</span>
+      <div class="period-btns">
+        <button class="period-btn"        data-p="1m"  onclick="setPeriod(this)">1ヶ月</button>
+        <button class="period-btn"        data-p="3m"  onclick="setPeriod(this)">3ヶ月</button>
+        <button class="period-btn"        data-p="6m"  onclick="setPeriod(this)">6ヶ月</button>
+        <button class="period-btn"        data-p="1y"  onclick="setPeriod(this)">1年</button>
+        <button class="period-btn active" data-p="all" onclick="setPeriod(this)">全期間</button>
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <div class="chart-loading" id="chart-loading">読み込み中…</div>
+      <canvas id="priceChart" style="display:none"></canvas>
+    </div>
+
+    <div class="chart-stats">
+      <div class="stat-card">
+        <div class="stat-label">期間高値</div>
+        <div class="stat-val" id="stat-high">---</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">期間安値</div>
+        <div class="stat-val" id="stat-low">---</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">期間騰落率</div>
+        <div class="stat-val" id="stat-pct">---</div>
+      </div>
+    </div>
+
   </div>
 
-  <div class="divider"></div>
-
-  <!-- チャートグラフを見る -->
-  <button class="main-btn" onclick="openMinkabu()">
-    📊 チャートグラフを見る
-  </button>
-
-  <!-- ===== みんかぶ インアプリブラウザ ===== -->
-  <div id="mk-overlay">
-    <div id="mk-bar">
-      <button class="mk-bar-btn" onclick="mkBack()">
-        ← 戻る
-      </button>
-      <span id="mk-title">みんかぶ</span>
-      <button class="mk-bar-btn" onclick="closeMinkabu()">
-        ✕ 閉じる
-      </button>
-    </div>
-    <iframe id="mk-frame" src="" title="みんかぶ" allowfullscreen></iframe>
-    <div id="mk-blocked">
-      <p>このページはiFrame表示に対応していません</p>
-      <a id="mk-ext-link" href="https://itf.minkabu.jp/fund/02312196" target="_blank" rel="noopener">
-        🔗 ブラウザで開く →
-      </a>
-    </div>
-  </div>
+  <a class="ext-link"
+     href="https://itf.minkabu.jp/fund/02312196"
+     target="_blank" rel="noopener">
+    📊 みんかぶで詳細を見る →
+  </a>
 
 <script>
   const CURRENT_CSV = 'https://docs.google.com/spreadsheets/d/13gQhvkm-opUl4hNHmDSZU1RmBAVLjzPcubRhSlrrZiI/export?format=csv&gid=0';
   const HISTORY_CSV = 'https://docs.google.com/spreadsheets/d/13gQhvkm-opUl4hNHmDSZU1RmBAVLjzPcubRhSlrrZiI/export?format=csv&gid=477403851';
 
   let chartInstance = null;
+  let allHistory    = [];   // { date: Date, price: number, label: string }[]
+  let currentPeriod = 'all';
 
+  // ===== CSV パース =====
   function parseCSV(text) {
     return text.trim().split('\n').map(line =>
       line.split(',').map(c => c.trim().replace(/^"|"$/g, ''))
     );
   }
 
+  // ===== 日付パース → Date オブジェクト =====
+  function parseDate(str) {
+    if (!str) return null;
+    let m;
+    m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+    if (m) return new Date(+m[3], +m[1]-1, +m[2]);
+    m = str.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+    m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+    return null;
+  }
+
+  // ===== 日付 → 日本語表示 =====
   function toDisplayDate(str) {
-    if (!str) return '';
-    let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-    if (m) return m[3] + '年' + parseInt(m[1]) + '月' + parseInt(m[2]) + '日';
-    m = str.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
-    if (m) return m[1] + '年' + parseInt(m[2]) + '月' + parseInt(m[3]) + '日';
-    m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (m) return m[1] + '年' + parseInt(m[2]) + '月' + parseInt(m[3]) + '日';
-    return str;
+    const d = parseDate(str);
+    if (!d) return str;
+    return d.getFullYear() + '年' + (d.getMonth()+1) + '月' + d.getDate() + '日';
   }
 
-  function toShortDate(str) {
-    if (!str) return '';
-    let m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
-    if (m) return parseInt(m[1]) + '/' + parseInt(m[2]);
-    m = str.match(/^(\d{4})\/(\d{2})\/(\d{2})/);
-    if (m) return parseInt(m[2]) + '/' + parseInt(m[3]);
-    m = str.match(/^(\d{4})-(\d{2})-(\d{2})/);
-    if (m) return parseInt(m[2]) + '/' + parseInt(m[3]);
-    return str;
+  // ===== チャート用短縮ラベル =====
+  function toShortLabel(d) {
+    return (d.getMonth()+1) + '/' + d.getDate();
   }
 
-  async function loadData() {
-    const btn = document.getElementById('reload-btn');
-    const errEl = document.getElementById('error-msg');
-    btn.disabled = true;
-    btn.textContent = '取得中…';
-    errEl.style.display = 'none';
-
-    await Promise.all([loadCurrent(), loadChart()]);
-
-    btn.disabled = false;
-    btn.textContent = '🔄 最新に更新';
+  // ===== 期間フィルタ =====
+  function filterByPeriod(rows, period) {
+    if (period === 'all') return rows;
+    const days = { '1m': 30, '3m': 90, '6m': 180, '1y': 365 }[period] || 9999;
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    return rows.filter(r => r.date >= cutoff);
   }
 
+  // ===== 統計更新 =====
+  function updateStats(rows) {
+    if (!rows.length) return;
+    const prices = rows.map(r => r.price);
+    const high   = Math.max(...prices);
+    const low    = Math.min(...prices);
+    const first  = rows[0].price;
+    const last   = rows[rows.length - 1].price;
+    const pct    = ((last - first) / first * 100);
+
+    document.getElementById('stat-high').textContent = '¥' + Math.round(high).toLocaleString('ja-JP');
+    document.getElementById('stat-low' ).textContent = '¥' + Math.round(low ).toLocaleString('ja-JP');
+
+    const pctEl = document.getElementById('stat-pct');
+    pctEl.textContent = (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%';
+    pctEl.className   = 'stat-val ' + (pct > 0 ? 'up' : pct < 0 ? 'down' : '');
+  }
+
+  // ===== チャート描画 =====
+  function drawChart(rows) {
+    const canvasEl   = document.getElementById('priceChart');
+    const loadingEl  = document.getElementById('chart-loading');
+
+    if (!rows.length) {
+      loadingEl.textContent = 'データがありません';
+      return;
+    }
+
+    // ラベル間引き（最大12点）
+    const step = Math.max(1, Math.floor(rows.length / 12));
+    const sparseLabels = rows.map((r, i) =>
+      (i % step === 0 || i === rows.length - 1) ? toShortLabel(r.date) : ''
+    );
+    const prices = rows.map(r => r.price);
+
+    loadingEl.style.display = 'none';
+    canvasEl.style.display  = 'block';
+
+    if (chartInstance) chartInstance.destroy();
+
+    chartInstance = new Chart(canvasEl.getContext('2d'), {
+      type: 'line',
+      data: {
+        labels: sparseLabels,
+        datasets: [{
+          data: prices,
+          borderColor: '#f5a623',
+          backgroundColor: 'rgba(245,166,35,0.10)',
+          borderWidth: 2.5,
+          pointRadius: 0,
+          fill: true,
+          tension: 0.3,
+        }]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            callbacks: {
+              title: (items) => toShortLabel(rows[items[0].dataIndex].date),
+              label: (item)  => '¥' + Math.round(item.raw).toLocaleString('ja-JP'),
+            }
+          }
+        },
+        scales: {
+          x: {
+            ticks: { color: '#7a9cbf', font: { size: 11 }, maxRotation: 0 },
+            grid:  { color: 'rgba(255,255,255,0.05)' },
+          },
+          y: {
+            ticks: {
+              color: '#7a9cbf',
+              font:  { size: 11 },
+              callback: v => '¥' + Math.round(v).toLocaleString('ja-JP'),
+            },
+            grid: { color: 'rgba(255,255,255,0.05)' },
+          }
+        }
+      }
+    });
+
+    updateStats(rows);
+  }
+
+  // ===== 期間ボタン押下 =====
+  function setPeriod(btn) {
+    document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentPeriod = btn.dataset.p;
+    const filtered = filterByPeriod(allHistory, currentPeriod);
+    drawChart(filtered);
+    updateStats(filtered);
+  }
+
+  // ===== 現在価格ロード =====
   async function loadCurrent() {
     const errEl = document.getElementById('error-msg');
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 10000);
-      const res = await fetch(CURRENT_CSV + '&t=' + Date.now(), { signal: controller.signal });
+      const res  = await fetch(CURRENT_CSV + '&t=' + Date.now(), { signal: controller.signal });
       clearTimeout(timer);
 
-      const rows = parseCSV(await res.text());
+      const rows  = parseCSV(await res.text());
       if (rows.length < 2) throw new Error('データが空です');
 
       const row   = rows[1];
       const price = parseFloat(row[1]) || 0;
       const diff  = parseFloat(row[2]) || 0;
       const pct   = parseFloat(row[3]) || 0;
-      const dateStr = toDisplayDate(row[0]);
 
       document.getElementById('price-val').textContent =
         '¥' + Math.round(price).toLocaleString('ja-JP');
@@ -377,14 +462,14 @@
 
       const chgEl = document.getElementById('price-chg');
       chgEl.textContent = sign + ' ' + Math.abs(Math.round(diff)).toLocaleString('ja-JP') + '円';
-      chgEl.className = 'price-change ' + cls;
+      chgEl.className   = 'price-change ' + cls;
 
       const pctEl = document.getElementById('price-pct');
       pctEl.textContent = '(' + (pct >= 0 ? '+' : '') + pct.toFixed(2) + '%)';
-      pctEl.className = 'price-pct ' + cls;
+      pctEl.className   = 'price-pct ' + cls;
 
       document.getElementById('price-date').textContent =
-        dateStr + ' 時点の基準価格';
+        toDisplayDate(row[0]) + ' 時点の基準価格';
 
     } catch(e) {
       errEl.textContent = e.name === 'AbortError'
@@ -395,9 +480,13 @@
     }
   }
 
+  // ===== 履歴チャートロード =====
   async function loadChart() {
     const loadingEl = document.getElementById('chart-loading');
     const canvasEl  = document.getElementById('priceChart');
+    loadingEl.style.display = 'flex';
+    canvasEl.style.display  = 'none';
+
     try {
       const controller = new AbortController();
       const timer = setTimeout(() => controller.abort(), 10000);
@@ -407,113 +496,34 @@
       const rows = parseCSV(await res.text());
       if (rows.length < 2) throw new Error('データなし');
 
-      const dataRows = rows.slice(1).filter(r => r[0] && r[1]);
-      const allLabels = dataRows.map(r => toShortDate(r[0]));
-      const prices    = dataRows.map(r => parseFloat(r[1]) || 0);
+      allHistory = rows.slice(1)
+        .map(r => ({ date: parseDate(r[0]), price: parseFloat(r[1]) || 0, raw: r[0] }))
+        .filter(r => r.date && r.price > 0)
+        .sort((a, b) => a.date - b.date);   // 古い→新しい
 
-      // ラベルを間引き（最大10個表示）
-      const step = Math.max(1, Math.floor(allLabels.length / 10));
-      const sparseLabels = allLabels.map((l, i) =>
-        (i % step === 0 || i === allLabels.length - 1) ? l : ''
-      );
+      const filtered = filterByPeriod(allHistory, currentPeriod);
+      drawChart(filtered);
 
-      loadingEl.style.display = 'none';
-      canvasEl.style.display  = 'block';
-
-      if (chartInstance) chartInstance.destroy();
-      chartInstance = new Chart(canvasEl.getContext('2d'), {
-        type: 'line',
-        data: {
-          labels: sparseLabels,
-          datasets: [{
-            data: prices,
-            borderColor: '#f5a623',
-            backgroundColor: 'rgba(245,166,35,0.10)',
-            borderWidth: 2.5,
-            pointRadius: 0,
-            fill: true,
-            tension: 0.3,
-          }]
-        },
-        options: {
-          responsive: true,
-          plugins: {
-            legend: { display: false },
-            tooltip: {
-              callbacks: {
-                title:  (items) => allLabels[items[0].dataIndex],
-                label:  (item)  => '¥' + Math.round(item.raw).toLocaleString('ja-JP'),
-              }
-            }
-          },
-          scales: {
-            x: {
-              ticks: { color: '#7a9cbf', font: { size: 11 }, maxRotation: 0 },
-              grid:  { color: 'rgba(255,255,255,0.05)' },
-            },
-            y: {
-              ticks: {
-                color: '#7a9cbf',
-                font:  { size: 11 },
-                callback: v => '¥' + Math.round(v / 1000) + 'k',
-              },
-              grid: { color: 'rgba(255,255,255,0.05)' },
-            }
-          }
-        }
-      });
     } catch(e) {
       loadingEl.textContent = '⚠ チャート取得失敗';
       console.warn('chart load failed', e);
     }
   }
 
+  // ===== まとめてロード =====
+  async function loadData() {
+    const btn = document.getElementById('reload-btn');
+    btn.disabled    = true;
+    btn.textContent = '取得中…';
+    document.getElementById('error-msg').style.display = 'none';
+
+    await Promise.all([loadCurrent(), loadChart()]);
+
+    btn.disabled    = false;
+    btn.textContent = '🔄 最新に更新';
+  }
+
   loadData();
-
-  // ===== みんかぶ インアプリブラウザ =====
-  const MK_URL = 'https://itf.minkabu.jp/fund/02312196';
-
-  function openMinkabu() {
-    const overlay = document.getElementById('mk-overlay');
-    const frame   = document.getElementById('mk-frame');
-    const blocked = document.getElementById('mk-blocked');
-    blocked.style.display = 'none';
-    frame.style.display   = 'block';
-    frame.src = MK_URL;
-    overlay.classList.add('open');
-    // iFrame ブロック検知（2秒後にコンテンツ確認）
-    frame.onload = function() {
-      try {
-        // 同一オリジン以外は securityError が出る→問題なし
-        // ただし blank/about:blank に飛んだ場合はブロックされてる
-        const loc = frame.contentWindow.location.href;
-        if (loc === 'about:blank') throw new Error('blocked');
-      } catch(e) {
-        // cross-origin は SecurityError → これは正常（コンテンツあり）
-        if (e.name !== 'SecurityError') {
-          // 本当にブロックされた
-          frame.style.display   = 'none';
-          blocked.style.display = 'flex';
-        }
-      }
-    };
-  }
-
-  function closeMinkabu() {
-    const overlay = document.getElementById('mk-overlay');
-    const frame   = document.getElementById('mk-frame');
-    overlay.classList.remove('open');
-    frame.src = '';
-  }
-
-  function mkBack() {
-    const frame = document.getElementById('mk-frame');
-    try {
-      frame.contentWindow.history.back();
-    } catch(e) {
-      // cross-origin の場合は無視
-    }
-  }
 </script>
 </body>
 </html>
