@@ -468,15 +468,6 @@ async function loadAll() {
   btn.disabled = true;
   btn.innerHTML = '<span class="loading-spinner"></span> 取得中...';
 
-  if (WEB_APP_URL === 'SETUP_REQUIRED') {
-    document.getElementById('setup-note').style.display = 'block';
-    document.getElementById('price-val').textContent = '未設定';
-    document.getElementById('price-date').textContent = '初回設定が必要です';
-    btn.disabled = false;
-    btn.innerHTML = '🔄 最新データを取得';
-    return;
-  }
-
   await Promise.all([loadCurrent(), loadHistory()]);
   document.getElementById('updated-at').textContent =
     '最終取得: ' + new Date().toLocaleString('ja-JP');
@@ -508,7 +499,10 @@ function parseCSV(text) {
 
 async function loadCurrent() {
   try {
-    const res  = await fetch(CURRENT_CSV + '&t=' + Date.now());
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
+    const res  = await fetch(CURRENT_CSV + '&t=' + Date.now(), { signal: ctrl.signal });
+    clearTimeout(timer);
     const rows = parseCSV(await res.text());
     if (rows.length < 2) throw new Error('データなし');
 
@@ -530,15 +524,19 @@ async function loadCurrent() {
     document.getElementById('price-date').textContent =
       toJstDateStr(row[0]) + ' 時点の基準価格';
   } catch(e) {
-    document.getElementById('price-val').textContent = 'エラー';
+    document.getElementById('price-val').textContent =
+      e.name === 'AbortError' ? 'タイムアウト' : 'エラー';
     document.getElementById('price-date').innerHTML =
-      '<span style="color:#e74c3c">取得できませんでした</span>';
+      '<span style="color:#e74c3c">取得できませんでした。再度お試しください。</span>';
   }
 }
 
 async function loadHistory() {
   try {
-    const res  = await fetch(HISTORY_CSV + '&t=' + Date.now());
+    const ctrl = new AbortController();
+    const timer = setTimeout(() => ctrl.abort(), 12000);
+    const res  = await fetch(HISTORY_CSV + '&t=' + Date.now(), { signal: ctrl.signal });
+    clearTimeout(timer);
     const rows = parseCSV(await res.text());
 
     const pairs = [];
