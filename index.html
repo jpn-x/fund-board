@@ -366,8 +366,26 @@ const HOLDINGS = [
    チャート
 ============================================================ */
 let chart = null;
-let histData = { labels: [], values: [] };
+let histData = { dates: [], labels: [], values: [] };
 let currentDays = 30;
+
+// M/D/YYYY・YYYY/MM/DD・YYYY-MM-DD → Date オブジェクト
+function parseHistDate(str) {
+  if (!str) return null;
+  let m;
+  m = str.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})/);
+  if (m) return new Date(+m[3], +m[1]-1, +m[2]);
+  m = str.match(/^(\d{4})[\/\-](\d{2})[\/\-](\d{2})/);
+  if (m) return new Date(+m[1], +m[2]-1, +m[3]);
+  return null;
+}
+
+// Date → "YYYY/MM/DD" 表示用
+function dateToLabel(d) {
+  return d.getFullYear() + '/' +
+    String(d.getMonth()+1).padStart(2,'0') + '/' +
+    String(d.getDate()).padStart(2,'0');
+}
 
 function initChart() {
   const ctx = document.getElementById('chart').getContext('2d');
@@ -437,10 +455,25 @@ function initChart() {
 }
 
 function renderChart(days) {
-  if (!chart || !histData.labels.length) return;
-  const n = days > 0 ? days : histData.labels.length;
-  const labels = histData.labels.slice(-n);
-  const values = histData.values.slice(-n);
+  if (!chart || !histData.dates.length) return;
+
+  let labels, values;
+  if (days <= 0) {
+    // 全期間
+    labels = histData.labels;
+    values = histData.values;
+  } else {
+    // 今日から days 日前の日付でフィルタ
+    const cutoff = new Date();
+    cutoff.setDate(cutoff.getDate() - days);
+    cutoff.setHours(0, 0, 0, 0);
+    const filtered = histData.dates
+      .map((d, i) => ({ d, l: histData.labels[i], v: histData.values[i] }))
+      .filter(x => x.d >= cutoff);
+    labels = filtered.map(x => x.l);
+    values = filtered.map(x => x.v);
+  }
+
   chart.data.labels = labels;
   chart.data.datasets[0].data = values;
   chart.update('none');
@@ -454,10 +487,17 @@ function switchPeriod(days, btn) {
 }
 
 function switchPeriodYTD(btn) {
-  const now = new Date();
-  const jan1 = new Date(now.getFullYear(), 0, 1);
-  const days = Math.ceil((now - jan1) / (1000 * 60 * 60 * 24));
-  switchPeriod(days, btn);
+  currentDays = -999; // 特殊値：今年フィルタ
+  document.querySelectorAll('.period-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  if (!chart || !histData.dates.length) return;
+  const jan1 = new Date(new Date().getFullYear(), 0, 1);
+  const filtered = histData.dates
+    .map((d, i) => ({ d, l: histData.labels[i], v: histData.values[i] }))
+    .filter(x => x.d >= jan1);
+  chart.data.labels = filtered.map(x => x.l);
+  chart.data.datasets[0].data = filtered.map(x => x.v);
+  chart.update('none');
 }
 
 /* ============================================================
@@ -541,14 +581,16 @@ async function loadHistory() {
 
     const pairs = [];
     rows.slice(1).forEach(row => {
-      const d = row[0] ? row[0].replace(/-/g, '/') : '';
+      const dateObj = parseHistDate(row[0]);
       const v = parseFloat(row[1]) || 0;
-      if (d && v > 0) pairs.push([d, v]);
+      if (dateObj && v > 0) pairs.push({ date: dateObj, value: v });
     });
-    pairs.sort((a, b) => a[0] < b[0] ? -1 : a[0] > b[0] ? 1 : 0);
+    // Date オブジェクトで正しく昇順ソート
+    pairs.sort((a, b) => a.date - b.date);
 
-    histData.labels = pairs.map(p => p[0]);
-    histData.values = pairs.map(p => p[1]);
+    histData.dates  = pairs.map(p => p.date);
+    histData.labels = pairs.map(p => dateToLabel(p.date));
+    histData.values = pairs.map(p => p.value);
 
     renderChart(currentDays);
   } catch(e) {
